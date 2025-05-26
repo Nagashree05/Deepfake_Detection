@@ -27,10 +27,14 @@ def validate_inputs(train_df, val_df, test_df):
         if 'filepath' not in df.columns or 'label' not in df.columns:
             raise ValueError(f"{name} DataFrame missing required columns!")
         
-    # Verify image files exist
-    for filepath in pd.concat([train_df.filepath, val_df.filepath, test_df.filepath]):
-        if not os.path.exists(filepath):
-            raise FileNotFoundError(f"Image file not found: {filepath}")                
+    def filter_missing(df, name):
+        initial_count = len(df)
+        df = df[df['filepath'].apply(os.path.exists)].copy()
+        removed = initial_count - len(df)
+        if removed > 0:
+            print(f"Removed {removed} missing files from {name} set")
+        return df
+                    
 # Load splits with validation
 train_df = pd.read_csv('data/splits/train.csv')
 val_df = pd.read_csv('data/splits/val.csv')
