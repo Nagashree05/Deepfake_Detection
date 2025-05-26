@@ -1,31 +1,33 @@
 import os
 from PIL import Image
 
-def validate_and_delete_images(directory):
-    corrupted_files = []
-    # Walk through directory and sub-directories
-    for dirpath, _, filenames in os.walk(directory):
-        print(f"Scanning directory: {dirpath}")
-        for image_file in filenames:
-            # Check for common image extensions
-            if image_file.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
-                image_path = os.path.join(dirpath, image_file)
-                try:
-                    with Image.open(image_path) as img:
-                        img.verify()
-                except Exception as e:
-                    corrupted_files.append(image_path)
-                    print(f"Error with {image_path}: {e}")
-                    os.remove(image_path)
-                    print(f"Deleted corrupted image: {image_path}")
-    return corrupted_files
-
-# Example usage:
-directory = "C:/Users/nagas/deepfake-detection/data/processed"
-corrupted_images = validate_and_delete_images(directory)
-
-if corrupted_images:
-    print(f"Found and deleted {len(corrupted_images)} corrupted images.")
-else:
-    print("All images are valid!")
-
+def deep_clean_images(directory):
+    removed = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            path = os.path.join(root, file)
+            
+            # Skip hidden/system files
+            if file.startswith('.') or file == 'Thumbs.db':
+                print(f"Removing system file: {path}")
+                os.remove(path)
+                continue
+                
+            # Verify image integrity
+            try:
+                with Image.open(path) as img:
+                    img.verify()  # Check file structure
+                    img.load()    # Force pixel data loading
+                    
+                # Additional format check for JPEG
+                if file.lower().endswith(('.jpg', '.jpeg')):
+                    with open(path, 'rb') as f:
+                        if b'JFIF' not in f.peek(10):
+                            raise Exception("Invalid JPEG header")
+                            
+            except Exception as e:
+                print(f"Removing {path}: {str(e)}")
+                os.remove(path)
+                removed.append(path)
+                
+    return removed
