@@ -12,7 +12,5 @@ logs/
 checkpoints/
 processed_videos.log
 
-best_model.h5
-
 # VS Code settings 
 .vscode/
