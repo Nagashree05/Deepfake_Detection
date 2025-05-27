@@ -6,6 +6,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras import layers, models, callbacks
 from sklearn.utils import class_weight
+import matplotlib
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 
 # Environment configuration
@@ -248,3 +250,4 @@ plt.legend()
 plt.tight_layout()
 plt.savefig('training_metrics.png', dpi=300)
 plt.show()
+
